@@ -1,0 +1,390 @@
+@php
+    $tag = session('tag_edit_data');
+    $tag_view = session('tag_view_data');
+    // dd($tags);
+@endphp
+<x-layout.default>
+    <script defer src="/assets/js/apexcharts.js"></script>
+    <script src="/assets/js/simple-datatables.js"></script>
+    <div x-data="custom">
+        <div class="panel mt-6">
+            <div class="flex gap-3 absolute">
+                @if($permission && $permission->delete)
+                    <form id="bulk-delete-form" method="POST" action="{{ route('pim.tags.bulk-delete') }}">
+                        @csrf
+                        <input type="hidden" name="ids" id="bulk-delete-ids">
+                        <button type="button"
+                            id="bulk-delete-button"
+                            onclick="submitBulkDelete()"
+                            disabled
+                            class="btn btn-danger">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" >
+                                <path d="M20.5001 6H3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                <path d="M18.8334 8.5L18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                <path d="M9.5 11L10 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                <path d="M14.5 11L14 16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path>
+                                <path d="M6.5 6C6.55588 6 6.58382 6 6.60915 5.99936C7.43259 5.97849 8.15902 5.45491 8.43922 4.68032C8.44784 4.65649 8.45667 4.62999 8.47434 4.57697L8.57143 4.28571C8.65431 4.03708 8.69575 3.91276 8.75071 3.8072C8.97001 3.38607 9.37574 3.09364 9.84461 3.01877C9.96213 3 10.0932 3 10.3553 3H13.6447C13.9068 3 14.0379 3 14.1554 3.01877C14.6243 3.09364 15.03 3.38607 15.2493 3.8072C15.3043 3.91276 15.3457 4.03708 15.4286 4.28571L15.5257 4.57697C15.5433 4.62992 15.5522 4.65651 15.5608 4.68032C15.841 5.45491 16.5674 5.97849 17.3909 5.99936C17.4162 6 17.4441 6 17.5 6" stroke="currentColor" stroke-width="1.5"></path>
+                            </svg>
+                        </button>
+                    </form>
+                @endif
+                @if($permission && $permission->create)
+                    <div x-data="modal" x-init="@if(session('open_modal') === 'create_tag') setTimeout(() => open = true, 500); @endif">
+                        <button type="button" class="btn btn-primary flex gap-1" @click="toggle">
+                            <svg width="20" height="20" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            Create Tag
+                        </button>
+                        <div class="fixed inset-0 bg-[black]/60 z-[999] hidden overflow-y-auto"
+                            :class="open && '!block'">
+                            <div class="flex items-start justify-center min-h-screen px-4"
+                                @click.self="open = false">
+                                <div class="panel border-0 p-0 rounded-lg overflow-hidden w-full max-w-4xl my-20 animate__animated"
+                                    :class="$store.app.rtlClass === 'rtl' ? 'animate__fadeInRight' :
+                                        'animate__fadeInLeft'">
+                                    <div
+                                        class="flex bg-gradient-to-b from-[#16222a] to-[#3a6073] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
+                                        <h5 class="font-bold text-lg text-gray-300">Add Tags</h5>
+                                        <button type="button" class="text-white-dark hover:text-dark"
+                                            @click="toggle; window.location.reload()">
+
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24px"
+                                                height="24px" viewBox="0 0 24 24" fill="none"
+                                                stroke="currentColor" stroke-width="1.5"
+                                                stroke-linecap="round" stroke-linejoin="round"
+                                                class="w-6 h-6">
+                                                <line x1="18" y1="6" x2="6"
+                                                    y2="18"></line>
+                                                <line x1="6" y1="6" x2="18"
+                                                    y2="18"></line>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div class="p-5">
+                                        <form action={{ route('pim.tags.store') }} method="POST">
+                                            @csrf
+                                            <div>
+                                                <div class="grid grid-cols-2 w-full gap-3">
+                                                    <div>
+                                                        <label>Tag Name - En</label>
+                                                        <input type="text" class="form-input" name="tagNameEn" value="{{ old('tagNameEn') }}" placeholder="Tag Name - En">
+                                                        @error('tagNameEn')
+                                                            <small style="color: #b91c1c;" class="mt-1">{{ $message }}</small>
+                                                        @enderror
+                                                    </div>
+                                                    <div>
+                                                        <label>Tag Name - Ar</label>
+                                                        <input type="text" class="form-input" name="tagNameAr" value="{{ old('tagNameAr') }}" placeholder="Tag Name - Ar">
+                                                        @error('tagNameAr')
+                                                            <small style="color: #b91c1c;" class="mt-1">{{ $message }}</small>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+                                                <div class="w-full mt-3">
+                                                    <label>Sorting</label>
+                                                    <input type="number" class="form-input" name="sorting" value="{{ old('sorting') }}" placeholder="0">
+                                                </div>
+                                                <div class="w-full mt-3">
+                                                    <label>Upload Icon</label>
+                                                    <input type="text" class="form-input" name="uploadIcon" value="{{ old('uploadIcon') }}">
+                                                </div>
+                                                <div class="w-full mt-3">
+                                                    <label>Image Link App</label>
+                                                    <input type="text" class="form-input" name="imageLink" value="{{ old('imageLink') }}">
+                                                </div>
+                                            </div>
+                                            <div class="flex justify-between items-center mt-8">
+                                                <label class="mb-0">
+                                                    <input type="checkbox" name="status" class="form-checkbox" value="1" {{ old('status') == '1' ? 'checked' : '' }} />
+                                                    <span class="mb-0">Enable this Tag</span>
+                                                </label>
+                                                <button type="submit" class="btn btn-primary ltr:ml-4 rtl:mr-4">Save</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+                <div x-data="modal" x-init="@if(session('open_modal') === 'edit_tag') setTimeout(() => open = true, 500); @endif">
+                    <div class="fixed inset-0 bg-[black]/60 z-[999] hidden overflow-y-auto"
+                        :class="open && '!block'">
+                        <div class="flex items-start justify-center min-h-screen px-4"
+                            @click.self="open = false">
+                            <div class="panel border-0 p-0 rounded-lg overflow-hidden w-full max-w-4xl my-20 animate__animated"
+                                :class="$store.app.rtlClass === 'rtl' ? 'animate__fadeInRight' :
+                                    'animate__fadeInLeft'">
+                                <div
+                                    class="flex bg-gradient-to-b from-[#16222a] to-[#3a6073] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
+                                    <h5 class="font-bold text-lg text-gray-300">Edit Tags</h5>
+                                    <button type="button" class="text-white-dark hover:text-dark"
+                                        @click="toggle; window.location.reload();">
+
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24px"
+                                            height="24px" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="1.5"
+                                            stroke-linecap="round" stroke-linejoin="round"
+                                            class="w-6 h-6">
+                                            <line x1="18" y1="6" x2="6"
+                                                y2="18"></line>
+                                            <line x1="6" y1="6" x2="18"
+                                                y2="18"></line>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="p-5">
+                                    <form action="{{ route('pim.tags.update', ['id' => $tag ? $tag->id : 0]) }}" method="POST">
+                                        @csrf
+                                        <input type="hidden" name="id" value="{{ $tag ? $tag->id : '' }}">
+                                        <div>
+                                            <div class="grid grid-cols-2 w-full gap-3">
+                                                <div>
+                                                    <label>Tag Name - En</label>
+                                                    <input type="text" class="form-input" name="tagNameEn" value="{{ old('tagNameEn', $tag ? $tag->name : '') }}" placeholder="Tag Name - En">
+                                                    @error('tagNameEn')
+                                                        <small style="color: #b91c1c;" class="mt-1">{{ $message }}</small>
+                                                    @enderror
+                                                </div>
+                                                <div>
+                                                    <label>Tag Name - Ar</label>
+                                                    <input type="text" class="form-input" name="tagNameAr" value="{{ old('tagNameAr', $tag ? $tag->name_ar : '') }}" placeholder="Tag Name - Ar">
+                                                    @error('tagNameAr')
+                                                        <small style="color: #b91c1c;" class="mt-1">{{ $message }}</small>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                            <div class="w-full mt-3">
+                                                <label>Sorting</label>
+                                                <input type="number" class="form-input" name="sorting" value="{{ old('sorting', $tag ? $tag->sorting : '') }}" placeholder="0">
+                                            </div>
+                                            <div class="w-full mt-3">
+                                                <label>Upload Icon</label>
+                                                <input type="text" class="form-input" name="uploadIcon" value="{{ old('uploadIcon', $tag ? $tag->icon : '') }}">
+                                            </div>
+                                            <div class="w-full mt-3">
+                                                <label>Image Link App</label>
+                                                <input type="text" class="form-input" name="imageLink" value="{{ old('imageLink', $tag ? $tag->image_link_app : '') }}">
+                                            </div>
+                                        </div>
+                                        <div class="flex justify-between items-center mt-8">
+                                            <label class="mb-0">
+                                                <input type="checkbox" name="status" class="form-checkbox" value="1" {{ old('status', $tag ? $tag->status : null) == '1' ? 'checked' : '' }} />
+                                                <span class="mb-0">Enable this Tag</span>
+                                            </label>
+                                            <button type="submit" class="btn btn-primary ltr:ml-4 rtl:mr-4">Update</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div x-data="modal" x-init="@if(session('open_modal') === 'view_tag') setTimeout(() => open = true, 500); @endif">
+                    <div class="fixed inset-0 bg-[black]/60 z-[999] hidden overflow-y-auto"
+                        :class="open && '!block'">
+                        <div class="flex items-start justify-center min-h-screen px-4"
+                            @click.self="open = false">
+                            <div class="panel border-0 p-0 rounded-lg overflow-hidden w-full max-w-4xl my-20 animate__animated"
+                                :class="$store.app.rtlClass === 'rtl' ? 'animate__fadeInRight' :
+                                    'animate__fadeInLeft'">
+                                <div
+                                    class="flex bg-gradient-to-b from-[#16222a] to-[#3a6073] dark:bg-[#121c2c] items-center justify-between px-5 py-3">
+                                    <h5 class="font-bold text-lg text-gray-300">View Tags</h5>
+                                    <button type="button" class="text-white-dark hover:text-dark"
+                                        @click="toggle; window.location.reload();">
+
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24px"
+                                            height="24px" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="1.5"
+                                            stroke-linecap="round" stroke-linejoin="round"
+                                            class="w-6 h-6">
+                                            <line x1="18" y1="6" x2="6"
+                                                y2="18"></line>
+                                            <line x1="6" y1="6" x2="18"
+                                                y2="18"></line>
+                                        </svg>
+                                    </button>
+                                </div>
+                                <div class="p-5">
+                                    <form  method="POST">
+                                        <div>
+                                            <div class="grid grid-cols-2 w-full gap-3">
+                                                <div>
+                                                    <label>Tag Name - En</label>
+                                                    <input disabled type="text" class="form-input" name="tagNameEn" value="{{ $tag_view ? $tag_view->name : '' }}" placeholder="Tag Name - En">
+                                                    @error('tagNameEn')
+                                                        <small style="color: #b91c1c;" class="mt-1">{{ $message }}</small>
+                                                    @enderror
+                                                </div>
+                                                <div>
+                                                    <label>Tag Name - Ar</label>
+                                                    <input disabled type="text" class="form-input" name="tagNameAr" value="{{ $tag_view ? $tag_view->name_ar : '' }}" placeholder="Tag Name - Ar">
+                                                    @error('tagNameAr')
+                                                        <small style="color: #b91c1c;" class="mt-1">{{ $message }}</small>
+                                                    @enderror
+                                                </div>
+                                            </div>
+                                            <div class="w-full mt-3">
+                                                <label>Sorting</label>
+                                                <input disabled type="number" class="form-input" name="sorting" value="{{ $tag_view ? $tag_view->sorting : '' }}" placeholder="0">
+                                            </div>
+                                            <div class="w-full mt-3">
+                                                <label>Upload Icon</label>
+                                                <input disabled type="text" class="form-input" name="uploadIcon" value="{{ $tag_view ? $tag_view->icon : '' }}">
+                                            </div>
+                                            <div class="w-full mt-3">
+                                                <label>Image Link App</label>
+                                                <input disabled type="text" class="form-input" name="imageLink" value="{{ $tag_view ? $tag_view->image_link_app : '' }}">
+                                            </div>
+                                        </div>
+                                        <div class="flex justify-between items-center mt-8">
+                                            <label class="mb-0">
+                                                <input disabled type="checkbox" name="status" class="form-checkbox" value="1" {{ old('status', $tag_view ? $tag_view->status : null) == '1' ? 'checked' : '' }} />
+                                                <span class="mb-0">Enable this Tag</span>
+                                            </label>
+                                            <button type="button" @click="toggle" class="btn btn-primary ltr:ml-4 rtl:mr-4">Close</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <table id="myTable" class="whitespace-nowrap table-checkbox relative"></table>
+        </div>
+    </div>
+    <script>
+        const tagsData = [
+            @foreach($tags as $tags)
+                @php
+                    $statusHtml = $tags->status == 0
+                        ? '<div class="text-danger font-semibold">Disabled</div>'
+                        : '<div class="text-success font-semibold">Enabled</div>';
+                    $subtags = ($tags->subtags && $tags->subtags->count() > 0)
+                        ? $tags->subtags->pluck('name')->join(', ')
+                        : '- - -';
+                @endphp
+                [
+                    `@if($permission && $permission->delete) <input name="ids[]" type="checkbox" value="{{ $tags->id }}" class="delete-checkbox form-checkbox" /> @endif`,
+                    `<span class='font-bold text-blue-600'>{{ $tags->id }}</span>`,
+                    `<span class=''>{{ $tags->name }}</span>`,
+                    `<div style='overflow-x: auto; max-width: 300px; white-space: nowrap;'>{{ $subtags }}</div>`,
+                    `<span class=''>{{ $tags->sorting }}</span>`,
+                    `{!! $statusHtml !!}`,
+                    `<a href="{{route('pim.tags.subtags.listing',['id'=>$tags->id])}}" class='btn btn-success w-48'>Create & View Family</a>`,
+                    `
+                    <div class='flex gap-2'>
+                        @if($permission && ($permission->view || $permission->view_all))
+                            <a href="{{route('pim.tags.view',['id'=>$tags->id])}}">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M2 12C2 13.6394 2.42496 14.1915 3.27489 15.2957C4.97196 17.5004 7.81811 20 12 20C16.1819 20 19.028 17.5004 20.7251 15.2957C21.575 14.1915 22 13.6394 22 12C22 10.3606 21.575 9.80853 20.7251 8.70433C19.028 6.49956 16.1819 4 12 4C7.81811 4 4.97196 6.49956 3.27489 8.70433C2.42496 9.80853 2 10.3606 2 12Z" stroke="currentColor" stroke-width="1.5" />
+                                    <path fillRule="evenodd" clipRule="evenodd" d="M8.25 12C8.25 9.92893 9.92893 8.25 12 8.25C14.0711 8.25 15.75 9.92893 15.75 12C15.75 14.0711 14.0711 15.75 12 15.75C9.92893 15.75 8.25 14.0711 8.25 12ZM9.75 12C9.75 10.7574 10.7574 9.75 12 9.75C13.2426 9.75 14.25 10.7574 14.25 12C14.25 13.2426 13.2426 14.25 12 14.25C10.7574 14.25 9.75 13.2426 9.75 12Z" stroke="currentColor" />
+                                </svg>
+                            </a>
+                        @endif
+                        @if($permission && $permission->edit)
+                            <a href="{{route('pim.tags.edit',['id'=>$tags->id])}}">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M15.2869 3.15178L14.3601 4.07866L5.83882 12.5999L5.83881 12.5999C5.26166 13.1771 4.97308 13.4656 4.7249 13.7838C4.43213 14.1592 4.18114 14.5653 3.97634 14.995C3.80273 15.3593 3.67368 15.7465 3.41556 16.5208L2.32181 19.8021L2.05445 20.6042C1.92743 20.9852 2.0266 21.4053 2.31063 21.6894C2.59466 21.9734 3.01478 22.0726 3.39584 21.9456L4.19792 21.6782L7.47918 20.5844L7.47919 20.5844C8.25353 20.3263 8.6407 20.1973 9.00498 20.0237C9.43469 19.8189 9.84082 19.5679 10.2162 19.2751C10.5344 19.0269 10.8229 18.7383 11.4001 18.1612L11.4001 18.1612L19.9213 9.63993L20.8482 8.71306C22.3839 7.17735 22.3839 4.68748 20.8482 3.15178C19.3125 1.61607 16.8226 1.61607 15.2869 3.15178Z" stroke="currentColor" stroke-width="1.5"/>
+                                    <path d="M14.36 4.07812C14.36 4.07812 14.4759 6.04774 16.2138 7.78564C17.9517 9.52354 19.9213 9.6394 19.9213 9.6394M4.19789 21.6777L2.32178 19.8015" stroke="currentColor" stroke-width="1.5"/>
+                                </svg>
+                            </a>
+                        @endif
+                        @if($permission && $permission->delete)
+                            <a href="{{route('pim.tags.delete',['id'=>$tags->id])}}">
+                                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M20.5001 6H3.5" stroke="currentColor" stroke-width="1.5" strokeLinecap="round"></path>
+                                    <path d="M18.8334 8.5L18.3735 15.3991C18.1965 18.054 18.108 19.3815 17.243 20.1907C16.378 21 15.0476 21 12.3868 21H11.6134C8.9526 21 7.6222 21 6.75719 20.1907C5.89218 19.3815 5.80368 18.054 5.62669 15.3991L5.16675 8.5" stroke="currentColor" stroke-width="1.5" strokeLinecap="round"></path>
+                                    <path d="M9.5 11L10 16" stroke="currentColor" stroke-width="1.5" strokeLinecap="round"></path>
+                                    <path d="M14.5 11L14 16" stroke="currentColor" stroke-width="1.5" strokeLinecap="round"></path>
+                                    <path d="M6.5 6C6.55588 6 6.58382 6 6.60915 5.99936C7.43259 5.97849 8.15902 5.45491 8.43922 4.68032C8.44784 4.65649 8.45667 4.62999 8.47434 4.57697L8.57143 4.28571C8.65431 4.03708 8.69575 3.91276 8.75071 3.8072C8.97001 3.38607 9.37574 3.09364 9.84461 3.01877C9.96213 3 10.0932 3 10.3553 3H13.6447C13.9068 3 14.0379 3 14.1554 3.01877C14.6243 3.09364 15.03 3.38607 15.2493 3.8072C15.3043 3.91276 15.3457 4.03708 15.4286 4.28571L15.5257 4.57697C15.5433 4.62992 15.5522 4.65651 15.5608 4.68032C15.841 5.45491 16.5674 5.97849 17.3909 5.99936C17.4162 6 17.4441 6 17.5 6" stroke="currentColor" stroke-width="1.5"></path>
+                                </svg>
+                            </a>
+                        @endif
+                    </div>
+                    `,
+                ],
+            @endforeach
+        ];
+        document.addEventListener("alpine:init", () => {
+            Alpine.data("custom", () => ({
+                ids: [],
+                datatable: null,
+                tableData: tagsData,
+                init() {
+                    this.datatable = new simpleDatatables.DataTable('#myTable', {
+                        data: {
+                            headings: [
+                                '@if($permission && $permission->delete) <input type="checkbox" class="form-checkbox" id="select-all" /> @endif',
+                                "ID", "Tag Name - En", "Sub Tags", "Sorting", "Status", "Create Sub Tag", "Action"
+                            ],
+                            data: this.tableData,
+                        },
+                        perPage: 10,
+                        perPageSelect: [10, 20, 30, 50, 100],
+                        columns: [{
+                            select: 0,
+                            sortable: false,
+                            render: (data, cell, row) => {
+                                return data;
+                            }
+                        }, ],
+                        firstLast: true,
+                        firstText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"> <path d="M13 19L7 12L13 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/> <path opacity="0.5" d="M16.9998 19L10.9998 12L16.9998 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/> </svg>',
+                        lastText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"> <path d="M11 19L17 12L11 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/> <path opacity="0.5" d="M6.99976 19L12.9998 12L6.99976 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/> </svg>',
+                        prevText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"> <path d="M15 5L9 12L15 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/> </svg>',
+                        nextText: '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 rtl:rotate-180"> <path d="M9 5L15 12L9 19" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/> </svg>',
+                        labels: {
+                            perPage: "{select}"
+                        },
+                        layout: {
+                            top: "{search}",
+                            bottom: "{info}{select}{pager}",
+                        },
+                    });
+                },
+            }));
+        });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const selectAll = document.getElementById('select-all');
+            const checkboxes = document.querySelectorAll('.delete-checkbox');
+            const bulkDeleteBtn = document.getElementById('bulk-delete-button');
+
+            function toggleDeleteButton() {
+                const checkedCount = document.querySelectorAll('.delete-checkbox:checked').length;
+                bulkDeleteBtn.disabled = checkedCount === 0;
+                bulkDeleteBtn.classList.toggle('cursor-not-allowed', checkedCount === 0);
+                bulkDeleteBtn.classList.toggle('opacity-50', checkedCount === 0);
+            }
+
+            selectAll.addEventListener('change', function () {
+                checkboxes.forEach(cb => cb.checked = selectAll.checked);
+                toggleDeleteButton();
+            });
+
+            checkboxes.forEach(cb => {
+                cb.addEventListener('change', toggleDeleteButton);
+            });
+
+            toggleDeleteButton();
+        });
+
+        // Multi-delete logic
+        function submitBulkDelete() {
+            const checked = document.querySelectorAll('.delete-checkbox:checked');
+            if (checked.length === 0) {
+                alert('Please select at least one record to delete.');
+                return;
+            }
+            const ids = Array.from(checked).map(cb => cb.value);
+            document.getElementById('bulk-delete-ids').value = ids.join(',');
+            document.getElementById('bulk-delete-form').submit();
+        }
+    </script>
+</x-layout.default>
