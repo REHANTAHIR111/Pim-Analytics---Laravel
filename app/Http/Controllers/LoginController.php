@@ -58,6 +58,11 @@ class LoginController extends Controller
             }
         }
 
+        // if (!Hash::check($request->password, $user->password)) {
+        //     return back()->withErrors(['password' => 'Invalid password.'])->withInput();
+        //     dd($request->password, $user->password);
+        // }
+        
         if (!\Hash::check($request->password, $user->password)) {
             return back()->withErrors(['password' => 'Invalid password.'])->withInput();
         }
