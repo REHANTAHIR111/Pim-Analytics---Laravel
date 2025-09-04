@@ -19,7 +19,7 @@
                 </a>
             </div>
             <ul class="perfect-scrollbar relative font-semibold space-y-0.5 h-[calc(100vh-80px)] overflow-y-auto overflow-x-hidden  p-4 py-0"
-                x-data="{ activeDropdown: null }">
+                x-data="{ activeDropdown: {{ request()->routeIs('index') ? "'dashboard'" : 'null' }} }">
                 <li class="menu nav-item">
                     <button type="button" class="nav-link group" :class="{ 'active': activeDropdown === 'dashboard' }"
                         @click="activeDropdown === 'dashboard' ? activeDropdown = null : activeDropdown = 'dashboard'">
@@ -51,7 +51,10 @@
                             Dashboard</span>
                         </div>
                         <div class="rtl:rotate-180" :class="{ '!rotate-90': activeDropdown === 'dashboard' }">
-
+                        @php
+                                $isActive = request()->is('');
+                                $iconColor = $isActive ? '!text-blue-600' : '!text-white';
+                            @endphp
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path d="M9 5L15 12L9 19" stroke="white" stroke-width="1.5"
@@ -59,13 +62,19 @@
                             </svg>
                         </div>
                     </button>
-                    <ul x-cloak x-show="activeDropdown === 'dashboard'" x-collapse class="sub-menu text-gray-500">
-                        <li>
-                            <a href="/">Sales</a>
+                    <ul x-cloak x-show="activeDropdown === 'dashboard'" x-collapse class="nav-item group text-gray-500">
+                        <li class="nav-item">
+                            <a href="/" class="ltr:pl-3 rtl:pr-3 capitalize
+                                group-hover:!text-gray-900
+                                group-[.active]:!text-gray-900
+                                !text-gray-200
+                                dark:!text-gray-200
+                                dark:group-hover:!text-white-dark
+                                dark:group-[.active]:!text-white-dark
+                            ">—	&nbsp; Sales</a>
                         </li>
                     </ul>
                 </li>
-
                 <h2
                     class="py-3 px-7 flex items-center uppercase font-extrabold dark:bg-dark dark:bg-opacity-[0.08] -mx-4 mb-1" style='background:rgb(198 215 225);'>
 
