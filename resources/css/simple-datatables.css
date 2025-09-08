@@ -53,11 +53,19 @@ table.table-compact tbody tr td {
 }
 
 .dataTable-pagination ul {
-  @apply flex items-center;
+  @apply inline-flex items-center;
 }
 
 .dataTable-pagination a {
-  @apply grid h-9 w-9 place-content-center rounded-full bg-white-light text-dark hover:!bg-primary hover:!text-white ltr:ml-1 rtl:mr-1 dark:bg-[#191e3a] dark:text-white-light;
+  @apply grid h-9 w-9 place-content-center bg-white-light text-dark hover:!bg-primary hover:!text-white dark:bg-[#191e3a] dark:text-white-light;
+}
+
+.dataTable-pagination ul li:first-child a {
+  @apply rounded-l-full;
+}
+
+.dataTable-pagination ul li:last-child a {
+  @apply rounded-r-full;
 }
 
 .dataTable-pagination .active a {

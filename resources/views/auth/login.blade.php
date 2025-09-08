@@ -26,7 +26,7 @@
                             <div>
                                 <label for="Email">Email or Phone</label>
                                 <div class="relative text-gray-600">
-                                    <input id="login" name='login' value="{{ old('login') }}" type="text" placeholder="Email or Phone" class="form-input ps-10 placeholder:text-gray-600 !bg-transparent !backdrop-blur-sm" />
+                                    <input id="login" name='login' value="{{ old('login') }}" type="text" placeholder="Email or Phone" class="form-input ps-10 placeholder:text-gray-600 !bg-transparent !backdrop-blur-sm hover:border-primary transition-all duration-150" />
                                     <span class="absolute start-4 top-1/2 -translate-y-1/2">
                                         <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                                             <path opacity="0.5"
@@ -45,7 +45,7 @@
                             <div>
                                 <label for="Password">Password</label>
                                 <div class="relative text-gray-600">
-                                    <input id="password" name="password" type="password" placeholder="Enter Password" class="form-input ps-10 placeholder:text-gray-600 pr-10 !bg-transparent !backdrop-blur-sm" />
+                                    <input id="password" name="password" type="password" placeholder="Enter Password" class="form-input ps-10 placeholder:text-gray-600 pr-10 !bg-transparent !backdrop-blur-sm hover:border-primary transition-all duration-150" />
                                     <span class="absolute start-4 top-1/2 -translate-y-1/2">
                                         <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                                             <path opacity="0.5"
