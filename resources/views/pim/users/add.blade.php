@@ -89,7 +89,7 @@
                                     </button>
                                 </div>
                                 <button type="button" id="generatePassword"
-                                    class="inline-flex items-center px-3 py-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 text-white text-sm font-semibold rounded-lg shadow hover:from-blue-600 hover:to-purple-600 focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all duration-200 gap-2"
+                                    class="inline-flex items-center px-3 py-2 bg text-white text-sm font-semibold rounded-lg shadow focus:outline-none focus:ring-2 focus:ring-blue-300 transition-all duration-200 gap-2 bg-cyan-600 hover:bg-cyan-800"
                                     title="Generate Password">
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />

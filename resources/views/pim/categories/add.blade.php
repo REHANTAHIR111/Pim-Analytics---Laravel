@@ -545,36 +545,27 @@
                     <input type="file" id="mobileImage" name="mobileImage" accept="image/*" class="hidden">
                     <input type="hidden" id="image_mobile_hidden" name="image_mobile" value="{{ $image_mobile }}">
                 </div>
-
+                
                 <!-- Website Image Upload -->
                 <div class="panel mb-3">
-                    <div class="flex justify-between items-baseline">
-                        <label for="galleryImage" class="block font-semibold mb-2">Product Image Gallery</label>
+                    <div class='flex justify-between items-baseline'>
+                        <label for="websiteImage" class="block font-semibold mb-2">Upload Website Image</label>
                         <div class="text-center mt-2">
-                            <button type="button" class="btn btn-dark" onclick="document.getElementById('galleryImage').click()">Update Images</button>
+                            <button type="button" class="btn btn-dark" onclick="document.getElementById('websiteImage').click()">Update Image</button>
                         </div>
                     </div>
-
-                    <div class="relative rounded-md mt-3 grid grid-cols-3 gap-3" id="websitePreview">
-                    </div>
-
-                    <div class="relative rounded-md mt-3 grid grid-cols-3 gap-3">
-                        @php
-                            $imageWebsite = old('image_website', $product->image_website ?? '');
-                            $galleryImages = $imageWebsite ? explode(',', $imageWebsite) : [];
-                        @endphp
-                        @foreach ($galleryImages as $url)
-                            @php $cleanUrl = e($url); @endphp
-                            <div class="relative inline-block panel">
-                                <button type="button"
-                                        class="text-danger text-xl font-bold z-10 absolute top-0 left-1"
-                                        onclick="removeImageElement(this, 'image_website_hidden', '{{ $cleanUrl }}')">×</button>
-                                <img src="{{ $cleanUrl }}" class="w-24 h-16 object-contain mt-2 rounded-lg"/>
+                    <div class="relative rounded-md mt-3 overflow-hidden w-full max-w-sm" id="websitePreview">
+                        @php $image_website = old('image_website') ?? $image_website ?? ''; @endphp
+                        @if (!empty($image_website))
+                            <div class="relative inline-block">
+                                <button type="button" class="text-danger text-xl font-bold z-10 absolute top-0 left-1"
+                                    onclick="removeImageElement(this, 'image_website_hidden', '{{ $image_website }}')">×</button>
+                                <img src="{{ $image_website }}" id="existingWebsiteImage">
                             </div>
-                        @endforeach
+                        @endif
                     </div>
-                    <input type="file" id="galleryImage" name="galleryImage[]" accept="image/*" class="hidden" multiple>
-                    <input type="hidden" id="image_website_hidden" name="image_website" value="{{ old('image_website', $imageWebsite) }}">
+                    <input type="file" id="websiteImage" name="websiteImage" accept="image/*" class="hidden">
+                    <input type="hidden" id="image_website_hidden" name="image_website" value="{{ $image_website }}">
                 </div>
             </div>
         </div>
