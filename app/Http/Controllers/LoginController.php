@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Redirect;
 
 class LoginController extends Controller
@@ -59,13 +60,21 @@ class LoginController extends Controller
         }
 
         // if (!Hash::check($request->password, $user->password)) {
-        //     return back()->withErrors(['password' => 'Invalid password.'])->withInput();
         //     dd($request->password, $user->password);
+        //     return back()->withErrors(['password' => 'Invalid password.'])->withInput();
+
         // }
-        
-        if (!\Hash::check($request->password, $user->password)) {
-            return back()->withErrors(['password' => 'Invalid password.'])->withInput();
+
+        if (
+            md5($request->password) !== $user->password &&
+            !Hash::check($request->password, $user->password)
+        ) {
+            return back()->withErrors(['password' => 'Invalid password.']);
         }
+
+        // if (!\Hash::check($request->password, $user->password)) {
+        //     return back()->withErrors(['password' => 'Invalid password.'])->withInput();
+        // }
 
         \Auth::login($user, $request->has('remember'));
         return redirect()->route('index')->with('message', 'You are Login Successfully!');
